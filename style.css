@@ -320,3 +320,38 @@ select:focus, input[type="text"]:focus {
     font-weight: bold;
     color: var(--primary-color);
 }
+/* Add these to your CSS */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.admin-table th, .admin-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.admin-table th {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.admin-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.admin-table button {
+    padding: 0.3rem 0.6rem;
+    margin: 0.2rem;
+    font-size: 0.8rem;
+}
+
+#admin-view .info-card {
+    margin-bottom: 2rem;
+}
+
+#admin-view button {
+    margin: 0.5rem 0.5rem 0.5rem 0;
+}
