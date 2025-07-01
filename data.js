@@ -28,6 +28,18 @@ async function initializeDefaultData() {
             studentId: null,
             uid: teacherCredential.user.uid
         });
+        const adminCredential = await auth.createUserWithEmailAndPassword(
+            "admin@school.com", 
+            "admin123"
+        );
+        
+        await usersCollection.add({
+            name: "System Admin",
+            email: "admin@school.com",
+            role: "admin",
+            studentId: null,
+            uid: adminCredential.user.uid
+        });
 
         // Create default student with attendance array
         const studentCredential = await auth.createUserWithEmailAndPassword(
