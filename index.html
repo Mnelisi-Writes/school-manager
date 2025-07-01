@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple School Management</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+<div id="auth-container">
+    <h2>Welcome to EduSync Pro</h2>
+    <div id="login-form">
+        <h3>Login</h3>
+        <input type="text" id="login-email" placeholder="Email">
+        <input type="password" id="login-password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <p>Forgot password? <a href="#" onclick="showReset()">Reset it</a></p>
+        <p>Don't have an account? <a href="#" onclick="showSignup()">Sign up</a></p>
+        <div id="new-password-form" class="hidden">
+            <h3>Set New Password</h3>
+            <input type="hidden" id="reset-user-email">
+            <input type="password" id="new-password" placeholder="New password">
+            <input type="password" id="confirm-password" placeholder="Confirm new password">
+            <button onclick="resetPassword()">Update Password</button>
+        </div>
+    </div>
+    
+    <div id="signup-form" class="hidden">
+        <h3>Sign Up</h3>
+        <input type="text" id="signup-name" placeholder="Full Name">
+        <input type="text" id="signup-email" placeholder="Email">
+        <input type="password" id="signup-password" placeholder="Password">
+        <select id="signup-role">
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+        </select>
+        <button onclick="signup()">Create Account</button>
+        <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+    </div>
+    <div id="reset-form" class="hidden">
+        <h3>Reset Password</h3>
+        <input type="text" id="reset-email" placeholder="Enter your email">
+        <button onclick="sendResetLink()">Send Reset Link</button>
+        <p>Remember your password? <a href="#" onclick="showLogin()">Login</a></p>
+    </div>
+</div>
+
+<div id="app-content" class="hidden">
+    <header>
+        <header>
+            <h1>EduSync Pro</h1>
+            <div id="user-info">
+                <span>Welcome, <span id="user-name"></span>!</span>
+            </div>
+            <button onclick="logout()" id="logout-btn" class="hidden">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+</header>
+    </header>
+
+    <main>
+        <div id="student-view" class="hidden">
+             <h2>Student Dashboard</h2>
+                <div class="info-card">
+                    <h3>Your Grades</h3>
+                    <div id="student-grades"></div>
+                </div>
+                <div class="info-card">
+                    <h3>Your Attendance</h3>
+                    <div id="student-attendance"></div>
+                </div>
+        </div>
+
+        <div id="teacher-view" class="hidden">
+             <h2>Teacher Portal</h2>
+                <div class="info-card">
+                    <h3>Record Grades</h3>
+                    <select id="student-select"></select>
+                    <input type="text" id="grade-input" placeholder="Enter grade (A-F)">
+                    <button onclick="recordGrade()">Submit Grade</button>
+                </div>
+                <div class="info-card">
+                    <h3>Take Attendance</h3>
+                    <p>Today's Date: <span id="today-date"></span></p>
+                    <select id="attendance-select"></select>
+                    <button onclick="markPresent()">Mark Present</button>
+                    <button onclick="markAbsent()">Mark Absent</button>
+    </div>
+        </div>
+
+        <div id="assistant">
+            <h3>AI School Assistant</h3>
+            <div id="chat-box"></div>
+            <input type="text" id="user-input" placeholder="Ask me anything about school...">
+            <button onclick="askAssistant()">Ask</button>
+        </div>
+    </main>
+</div>
+
+<script src="firebase.js"></script>
+<script src="data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
