@@ -38,6 +38,7 @@
         <select id="signup-role">
             <option value="student">Student</option>
             <option value="teacher">Teacher</option>
+            <option value="admin">Admin</option>
         </select>
         <button onclick="signup()">Create Account</button>
         <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
@@ -90,7 +91,21 @@
                     <select id="attendance-select"></select>
                     <button onclick="markPresent()">Mark Present</button>
                     <button onclick="markAbsent()">Mark Absent</button>
-    </div>
+               </div>
+        </div>
+        <div id="admin-view" class="hidden">
+            <h2>Admin Portal</h2>
+            <div class="info-card">
+                <h3>User Management</h3>
+                <div id="users-list"></div>
+                <button onclick="loadAllUsers()">Refresh Users</button>
+            </div>
+            <div class="info-card">
+                <h3>Student Management</h3>
+                <div id="students-list"></div>
+                <button onclick="loadAllStudents()">Refresh Students</button>
+            </div>
+            
         </div>
 
         <div id="assistant">
