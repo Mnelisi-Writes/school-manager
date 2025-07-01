@@ -31,7 +31,12 @@ async function signup() {
             const studentRef = await studentsCollection.add({
                 name,
                 grade: '',
-                attendance: '100%'
+                attendance: [
+                    {
+                        date: new Date().toISOString().split('T')[0],
+                        status: "present"
+                    }
+                ]
             });
             studentId = studentRef.id;
         }
@@ -127,6 +132,7 @@ function setUserType(type) {
     currentUser.type = type;
     document.getElementById('student-view').classList.add('hidden');
     document.getElementById('teacher-view').classList.add('hidden');
+    document.getElementById('admin-view').classList.add('hidden');
     document.getElementById('logout-btn').classList.remove('hidden');
     
     if (type === 'student') {
@@ -135,6 +141,9 @@ function setUserType(type) {
     } else if (type === 'teacher') {
         document.getElementById('teacher-view').classList.remove('hidden');
         loadTeacherData();
+    } else if (type === 'admin') {
+        document.getElementById('admin-view').classList.remove('hidden');
+        loadAdminData();
     }
 }
 
@@ -239,13 +248,22 @@ async function loadTeacherData() {
         const studentSelect = document.getElementById('student-select');
         const attendanceSelect = document.getElementById('attendance-select');
         
+        // Clear both dropdowns
         studentSelect.innerHTML = '';
         attendanceSelect.innerHTML = '';
         
+        // Get all students
         const snapshot = await studentsCollection.get();
+        
+        // Populate grade recording dropdown
         snapshot.forEach(doc => {
             const student = doc.data();
             studentSelect.innerHTML += `<option value="${doc.id}">${student.name}</option>`;
+        });
+        
+        // Populate attendance dropdown (with the same data, but separately)
+        snapshot.forEach(doc => {
+            const student = doc.data();
             attendanceSelect.innerHTML += `<option value="${doc.id}">${student.name}</option>`;
         });
     } catch (error) {
@@ -266,15 +284,7 @@ async function recordGrade() {
     }
 }
 
-function markPresent() {
-    const studentId = document.getElementById('attendance-select').value;
-    alert(`Marked present for student ID: ${studentId}`);
-}
 
-function markAbsent() {
-    const studentId = document.getElementById('attendance-select').value;
-    alert(`Marked absent for student ID: ${studentId}`);
-}
 
 // Password Reset Functions
 function showReset() {
@@ -297,6 +307,127 @@ async function sendResetLink() {
         showLogin();
     } catch (error) {
         alert('Error sending reset email: ' + error.message);
+    }
+}
+// Add new admin functions
+async function loadAdminData() {
+    await loadAllUsers();
+    await loadAllStudents();
+}
+
+async function loadAllUsers() {
+    try {
+        const usersList = document.getElementById('users-list');
+        usersList.innerHTML = '<h4>Loading users...</h4>';
+        
+        const snapshot = await usersCollection.get();
+        let html = '<table class="admin-table"><tr><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr>';
+        
+        snapshot.forEach(doc => {
+            const user = doc.data();
+            html += `
+                <tr>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.role}</td>
+                    <td>
+                        <button onclick="editUser('${doc.id}')">Edit</button>
+                        ${user.role !== 'admin' ? `<button onclick="deleteUser('${doc.id}')">Delete</button>` : ''}
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += '</table>';
+        usersList.innerHTML = html;
+    } catch (error) {
+        console.error("Error loading users: ", error);
+        document.getElementById('users-list').innerHTML = '<p>Error loading users</p>';
+    }
+}
+
+async function loadAllStudents() {
+    try {
+        const studentsList = document.getElementById('students-list');
+        studentsList.innerHTML = '<h4>Loading students...</h4>';
+        
+        const snapshot = await studentsCollection.get();
+        let html = '<table class="admin-table"><tr><th>Name</th><th>Grade</th><th>Attendance</th><th>Actions</th></tr>';
+        
+        snapshot.forEach(doc => {
+            const student = doc.data();
+            
+            // Safely handle attendance data
+            const attendance = Array.isArray(student.attendance) ? student.attendance : [];
+            const presentCount = attendance.filter(a => a && a.status === "present").length;
+            
+            html += `
+                <tr>
+                    <td>${student.name || 'N/A'}</td>
+                    <td>${student.grade || 'N/A'}</td>
+                    <td>${presentCount}/${attendance.length}</td>
+                    <td>
+                        <button onclick="editStudent('${doc.id}')">Edit</button>
+                        <button onclick="deleteStudent('${doc.id}')">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += '</table>';
+        studentsList.innerHTML = html;
+    } catch (error) {
+        console.error("Error loading students: ", error);
+        document.getElementById('students-list').innerHTML = 
+            `<p>Error loading students: ${error.message}</p>`;
+    }
+}
+// Add these utility functions
+async function deleteUser(userId) {
+    if (confirm("Are you sure you want to delete this user?")) {
+        try {
+            await usersCollection.doc(userId).delete();
+            alert("User deleted successfully");
+            loadAllUsers();
+        } catch (error) {
+            alert("Error deleting user: " + error.message);
+        }
+    }
+}
+
+async function deleteStudent(studentId) {
+    if (confirm("Are you sure you want to delete this student?")) {
+        try {
+            await studentsCollection.doc(studentId).delete();
+            alert("Student deleted successfully");
+            loadAllStudents();
+        } catch (error) {
+            alert("Error deleting student: " + error.message);
+        }
+    }
+}
+
+async function resetDemoData() {
+    if (confirm("This will reset all demo data. Continue?")) {
+        try {
+            // Delete all users and students
+            const users = await usersCollection.get();
+            users.forEach(async doc => {
+                await doc.ref.delete();
+            });
+            
+            const students = await studentsCollection.get();
+            students.forEach(async doc => {
+                await doc.ref.delete();
+            });
+            
+            // Reinitialize default data
+            await initializeDefaultData();
+            alert("Demo data reset complete");
+            loadAdminData();
+        } catch (error) {
+            alert("Error resetting data: " + error.message);
+        }
     }
 }
 
